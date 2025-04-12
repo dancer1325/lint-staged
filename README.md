@@ -2,43 +2,43 @@
 
 [![npm version](https://badge.fury.io/js/lint-staged.svg)](https://badge.fury.io/js/lint-staged)
 
----
+* == script 
+  * allows
+    * run tasks (formatters & linters) | staged git files
+      * -- passed as -- arguments
+      * / -- can be filtered by -- specified glob pattern
+    * NOT let commit | your code base
+  * by default, 
+    * | BEFORE running a task, it creates a `git stash`
+      * == backup of the original state
+      * Reason: 🧠prevent data loss🧠
 
-Run tasks like formatters and linters against staged git files and don't let :poop: slip into your code base!
+* _Examples:_ [video](https://asciinema.org/a/199934)
+  ```
+  $ git commit
+  
+  ✔ Backed up original state in git stash (5bda95f)
+  ❯ Running tasks for staged files...
+    ❯ packages/frontend/.lintstagedrc.json — 1 file
+      ↓ *.js — no files [SKIPPED]
+      ❯ *.{json,md} — 1 file
+        ⠹ prettier --write
+    ↓ packages/backend/.lintstagedrc.json — 2 files
+      ❯ *.js — 2 files
+        ⠼ eslint --fix
+      ↓ *.{json,md} — no files [SKIPPED]
+  ◼ Applying modifications from tasks...
+  ◼ Cleaning up temporary files...
+  ```
 
-```bash
-npm install --save-dev lint-staged # requires further setup
-```
+## Goal
 
-```
-$ git commit
-
-✔ Backed up original state in git stash (5bda95f)
-❯ Running tasks for staged files...
-  ❯ packages/frontend/.lintstagedrc.json — 1 file
-    ↓ *.js — no files [SKIPPED]
-    ❯ *.{json,md} — 1 file
-      ⠹ prettier --write
-  ↓ packages/backend/.lintstagedrc.json — 2 files
-    ❯ *.js — 2 files
-      ⠼ eslint --fix
-    ↓ *.{json,md} — no files [SKIPPED]
-◼ Applying modifications from tasks...
-◼ Cleaning up temporary files...
-```
-
-<details>
-<summary>See asciinema video</summary>
-
-[![asciicast](https://asciinema.org/a/199934.svg)](https://asciinema.org/a/199934)
-
-</details>
-
-## Why
-
-Code quality tasks like formatters and linters make more sense when run before committing your code. By doing so you can ensure no errors go into the repository and enforce code style. But running a task on a whole project can be slow, and opinionated tasks such as linting can sometimes produce irrelevant results. Ultimately you only want to check files that will be committed.
-
-This project contains a script that will run arbitrary shell tasks with a list of staged files as an argument, filtered by a specified glob pattern.
+* Code quality tasks (formatters & linters) 
+  * should run
+    * | BEFORE committing your code, 
+      * Reason: 🧠avoid errors & enforce code style🧠
+    * | files / will be committed
+      * != ALL files
 
 ## Related blog posts and talks
 
@@ -48,34 +48,19 @@ This project contains a script that will run arbitrary shell tasks with a list o
 - [SurviveJS interview - Juho Vepsäläinen and Andrey Okonetchnikov, 2018](https://survivejs.com/blog/lint-staged-interview/)
 - [Prettier your CSharp with `dotnet-format` and `lint-staged`](https://johnnyreilly.com/2020/12/22/prettier-your-csharp-with-dotnet-format-and-lint-staged)
 
-> If you've written one, please submit a PR with the link to it!
+## How to setup?
 
-## Installation and setup
-
-To install _lint-staged_ in the recommended way, you need to:
-
-1. Install _lint-staged_ itself:
-   - `npm install --save-dev lint-staged`
-1. Set up the `pre-commit` git hook to run _lint-staged_
-   - [Husky](https://github.com/typicode/husky) is a popular choice for configuring git hooks
-   - Read more about git hooks [here](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)
-1. Install some tools like [ESLint](https://eslint.org) or [Prettier](https://prettier.io)
-1. Configure _lint-staged_ to run code checkers and other tasks:
-   - for example: `{ "*.js": "eslint" }` to run ESLint for all staged JS files
-   - See [Configuration](#configuration) for more info
-
-Don't forget to commit changes to `package.json` and `.husky` to share this setup with your team!
-
-Now change a few files, `git add` or `git add --patch` some of them to your commit, and try to `git commit` them.
-
-See [examples](#examples) and [configuration](#configuration) for more information.
-
-> [!CAUTION]  
-> _Lint-staged_ runs `git` operations affecting the files in your repository. By default _lint-staged_ creates a `git stash` as a backup of the original state before running any configured tasks to help prevent data loss.
+1. `npm install --save-dev lint-staged`
+2. set up `pre-commit` git hook 
+   - ⚠️required to run _lint-staged_ ⚠️
+   - [git hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)
+   - ways to configure git hooks
+     - [Husky](https://github.com/typicode/husky)
+3. install some tools (_Example:_ [ESLint](https://eslint.org) or [Prettier](https://prettier.io))
+4. Configure _lint-staged_ / run code checkers & OTHER tasks
+   - [Configuration](#configuration)
 
 ## Changelog
-
-See [Releases](https://github.com/okonet/lint-staged/releases).
 
 ### Migration
 
@@ -142,7 +127,8 @@ Any lost modifications can be restored from a git stash:
   > git stash apply --index stash@{0}
 ```
 
-- **`--allow-empty`**: By default, when tasks undo all staged changes, lint-staged will exit with an error and abort the commit. Use this flag to allow creating empty git commits.
+- **`--allow-empty`**
+  - TODO: By default, when tasks undo all staged changes, lint-staged will exit with an error and abort the commit. Use this flag to allow creating empty git commits.
 - **`--concurrent [number|boolean]`**: Controls the [concurrency of tasks](#task-concurrency) being run by lint-staged. **NOTE**: This does NOT affect the concurrency of subtasks (they will always be run sequentially). Possible values are:
   - `false`: Run all tasks serially
   - `true` (default) : _Infinite_ concurrency. Runs as many tasks in parallel as possible.
@@ -165,74 +151,67 @@ Any lost modifications can be restored from a git stash:
 
 ## Configuration
 
-_Lint-staged_ can be configured in many ways:
+* ways to configure
+  - | `package.json` OR [`package.yaml`](https://github.com/pnpm/pnpm/pull/1799),
+    - `lint-staged` object 
+    ```json
+    {
+      "lint-staged": {
+        "*": "your-cmd"
+      }
+    }
+    ```    
+  - `.lintstagedrc`
+    - `.lintstagedrc.json`
+    - `.lintstagedrc.yaml`
+    - `.lintstagedrc.yml`
+    ```json
+    {
+      "*": "your-cmd"
+    }
+    ```
+  - `.lintstagedrc.mjs` OR `lint-staged.config.mjs` / ESM format
+    - == `export default { lintStageConfiguration }`
+  - `.lintstagedrc.cjs` or `lint-staged.config.cjs` / CommonJS format
+    - == `module.exports = { lintStageConfiguration }`
+  - `lint-staged.config.js` or `.lintstagedrc.js` 
+    - / ESM OR CommonJS format -- depending on -- your project's _package.json_ `"type": "module"`
+  - Pass a configuration file -- via -- `--config` or `-c` flag
 
-- `lint-staged` object in your `package.json`, or [`package.yaml`](https://github.com/pnpm/pnpm/pull/1799)
-- `.lintstagedrc` file in JSON or YML format, or you can be explicit with the file extension:
-  - `.lintstagedrc.json`
-  - `.lintstagedrc.yaml`
-  - `.lintstagedrc.yml`
-- `.lintstagedrc.mjs` or `lint-staged.config.mjs` file in ESM format
-  - the default export value should be a configuration: `export default { ... }`
-- `.lintstagedrc.cjs` or `lint-staged.config.cjs` file in CommonJS format
-  - the exports value should be a configuration: `module.exports = { ... }`
-- `lint-staged.config.js` or `.lintstagedrc.js` in either ESM or CommonJS format, depending on
-  whether your project's _package.json_ contains the `"type": "module"` option or not.
-- Pass a configuration file using the `--config` or `-c` flag
+* 💡== object / 💡
+  * EACH key == glob pattern -- via using [micromatch](https://github.com/micromatch/micromatch) 
+  * EACH value == command to run
+  * | JavaScript files,
+    * [you can ALSO use a function](#using-js-configuration-files)
+  * [| multi-package monorepo?"](#how-to-use-lint-staged-in-a-multi-package-monorepo)
 
-Configuration should be an object where each value is a command to run and its key is a glob pattern to use for this command. This package uses [micromatch](https://github.com/micromatch/micromatch) for glob patterns. JavaScript files can also export advanced configuration as a function. See [Using JS configuration files](#using-js-configuration-files) for more info.
-
-You can also place multiple configuration files in different directories inside a project. For a given staged file, the closest configuration file will always be used. See ["How to use `lint-staged` in a multi-package monorepo?"](#how-to-use-lint-staged-in-a-multi-package-monorepo) for more info and an example.
-
-#### `package.json` example:
-
-```json
-{
-  "lint-staged": {
-    "*": "your-cmd"
+### | JS
+* -- via -- JSDoc syntax
+  ```js
+  /**
+   * @filename: lint-staged.config.js
+   * @type {import('lint-staged').Configuration}
+   */
+  export default {
+    '*': 'prettier --write',
   }
-}
-```
+  ```
 
-#### `.lintstagedrc` example
-
-```json
-{
-  "*": "your-cmd"
-}
-```
-
-This config will execute `your-cmd` with the list of currently staged files passed as arguments.
-
-So, considering you did `git add file1.ext file2.ext`, lint-staged will run the following command:
-
-`your-cmd file1.ext file2.ext`
-
-### TypeScript
-
-_Lint-staged_ provides TypeScript types for the configuration and main Node.js API. You can use the JSDoc syntax in your JS configuration files:
-
-```js
-/**
- * @filename: lint-staged.config.js
- * @type {import('lint-staged').Configuration}
- */
-export default {
-  '*': 'prettier --write',
-}
-```
-
-It's also possible to use the `.ts` file extension for the configuration if your Node.js version supports it. The `--experimental-strip-types` flag was introduced in [Node.js v22.6.0](https://github.com/nodejs/node/releases/tag/v22.6.0) and unflagged in [v23.6.0](https://github.com/nodejs/node/releases/tag/v23.6.0), enabling Node.js to execute TypeScript files without additional configuration.
-
-```shell
-export NODE_OPTIONS="--experimental-strip-types"
-
-npx lint-staged --config lint-staged.config.ts
-```
+### | TypeScript
+* | [Node.js v22.6.0](https://github.com/nodejs/node/releases/tag/v22.6.0)
+  * if you want to enable Node.js / execute TypeScript files WITHOUT additional configuration -> use `--experimental-strip-types` flag
+  ```shell
+  export NODE_OPTIONS="--experimental-strip-types"
+  
+  npx lint-staged --config lint-staged.config.ts
+  ```
 
 ### Task concurrency
 
-By default _lint-staged_ will run configured tasks concurrently. This means that for every glob, all the commands will be started at the same time. With the following config, both `eslint` and `prettier` will run at the same time:
+* TODO:
+By default _lint-staged_ will run configured tasks concurrently. 
+This means that for every glob, all the commands will be started at the same time. 
+With the following config, both `eslint` and `prettier` will run at the same time:
 
 ```json
 {
@@ -241,7 +220,10 @@ By default _lint-staged_ will run configured tasks concurrently. This means that
 }
 ```
 
-This is typically not a problem since the globs do not overlap, and the commands do not make changes to the files, but only report possible errors (aborting the git commit). If you want to run multiple commands for the same set of files, you can use the array syntax to make sure commands are run in order. In the following example, `prettier` will run for both globs, and in addition `eslint` will run for `*.ts` files _after_ it. Both sets of commands (for each glob) are still started at the same time (but do not overlap).
+This is typically not a problem since the globs do not overlap, and the commands do not make changes to the files, but only report possible errors (aborting the git commit). 
+If you want to run multiple commands for the same set of files, you can use the array syntax to make sure commands are run in order. 
+In the following example, `prettier` will run for both globs, and in addition `eslint` will run for `*.ts` files _after_ it. 
+Both sets of commands (for each glob) are still started at the same time (but do not overlap).
 
 ```json
 {
@@ -250,7 +232,8 @@ This is typically not a problem since the globs do not overlap, and the commands
 }
 ```
 
-Pay extra attention when the configured globs overlap, and tasks make edits to files. For example, in this configuration `prettier` and `eslint` might try to make changes to the same `*.ts` file at the same time, causing a _race condition_:
+Pay extra attention when the configured globs overlap, and tasks make edits to files. 
+For example, in this configuration `prettier` and `eslint` might try to make changes to the same `*.ts` file at the same time, causing a _race condition_:
 
 ```json
 {
@@ -282,34 +265,46 @@ Or, if necessary, you can limit the concurrency using `--concurrent <number>` or
 
 ## Filtering files
 
-Task commands work on a subset of all staged files, defined by a _glob pattern_. lint-staged uses [micromatch](https://github.com/micromatch/micromatch) for matching files with the following rules:
+* lint-staged uses [micromatch](https://github.com/micromatch/micromatch) / rules
+  - if the glob pattern contains NO slashes (`/`) -> micromatch's `matchBase` option enabled -> globs match a file's basename REGARDLESS directory
+    - _Examples:_
+      - `"*.js"` == ALL JS files
+        - _Examples:_ `/test.js` & `/foo/bar/test.js`
+      - `"!(*test).js"` == ALL JS files / EXCEPT TO ending in `test.js`
+        - _Example:_ NOT match `foo.test.js`
+      - `"!(*.css|*.js)"` == ALL files / EXCEPT TO CSS & JS files
+  - if the glob pattern does contain a slash (`/`) -> match for paths
+    - _Examples:_
+      - `"./*.js"` == ALL JS files | git repo root
+        - _Examples:_ 
+          - `/test.js`
+          - NOT `/foo/bar/test.js`
+      - `"foo/**/*.js"` == ALL JS files | `/foo` directory
+        - _Examples:_
+          - `/foo/bar/test.js`
+          - NOT `/test.js`
 
-- If the glob pattern contains no slashes (`/`), micromatch's `matchBase` option will be enabled, so globs match a file's basename regardless of directory:
-  - `"*.js"` will match all JS files, like `/test.js` and `/foo/bar/test.js`
-  - `"!(*test).js"` will match all JS files, except those ending in `test.js`, so `foo.js` but not `foo.test.js`
-  - `"!(*.css|*.js)"` will match all files except CSS and JS files
-- If the glob pattern does contain a slash (`/`), it will match for paths as well:
-  - `"./*.js"` will match all JS files in the git repo root, so `/test.js` but not `/foo/bar/test.js`
-  - `"foo/**/*.js"` will match all JS files inside the `/foo` directory, so `/foo/bar/test.js` but not `/test.js`
-
-When matching, lint-staged will do the following
-
-- Resolve the git root automatically, no configuration needed.
-- Pick the staged files which are present inside the project directory.
-- Filter them using the specified glob patterns.
-- Pass absolute paths to the tasks as arguments.
-
-**NOTE:** `lint-staged` will pass _absolute_ paths to the tasks to avoid any confusion in case they're executed in a different working directory (i.e. when your `.git` directory isn't the same as your `package.json` directory).
-
-Also see [How to use `lint-staged` in a multi-package monorepo?](#how-to-use-lint-staged-in-a-multi-package-monorepo)
+* how does it work?
+  * resolve AUTOMATICALLY the git root / NO configuration needed
+  * pick the staged files / present | project directory
+  * filter staged files -- via -- specified glob patterns
+  * pass absolute paths | tasks -- as -- arguments
+    * Reason: 🧠if they're executed | DIFFERENT working directory -> avoid confusion 🧠
+      * (== `.git` directory != your `package.json` directory)
 
 ### Ignoring files
 
-The concept of `lint-staged` is to run configured linter tasks (or other tasks) on files that are staged in git. `lint-staged` will always pass a list of all staged files to the task, and ignoring any files should be configured in the task itself.
+The concept of `lint-staged` is to run configured linter tasks (or other tasks) on files that are staged in git.
+`lint-staged` will always pass a list of all staged files to the task, and ignoring any files should be configured in the task itself.
 
-Consider a project that uses [`prettier`](https://prettier.io/) to keep code format consistent across all files. The project also stores minified 3rd-party vendor libraries in the `vendor/` directory. To keep `prettier` from throwing errors on these files, the vendor directory should be added to prettier's ignore configuration, the `.prettierignore` file. Running `npx prettier .` will ignore the entire vendor directory, throwing no errors. When `lint-staged` is added to the project and configured to run prettier, all modified and staged files in the vendor directory will be ignored by prettier, even though it receives them as input.
+Consider a project that uses [`prettier`](https://prettier.io/) to keep code format consistent across all files.
+The project also stores minified 3rd-party vendor libraries in the `vendor/` directory. 
+To keep `prettier` from throwing errors on these files, the vendor directory should be added to prettier's ignore configuration, the `.prettierignore` file. 
+Running `npx prettier .` will ignore the entire vendor directory, throwing no errors. 
+When `lint-staged` is added to the project and configured to run prettier, all modified and staged files in the vendor directory will be ignored by prettier, even though it receives them as input.
 
-In advanced scenarios, where it is impossible to configure the linter task itself to ignore files, but some staged files should still be ignored by `lint-staged`, it is possible to filter filepaths before passing them to tasks by using the function syntax. See [Example: Ignore files from match](#example-ignore-files-from-match).
+In advanced scenarios, where it is impossible to configure the linter task itself to ignore files, but some staged files should still be ignored by `lint-staged`, it is possible to filter filepaths before passing them to tasks by using the function syntax. 
+See [Example: Ignore files from match](#example-ignore-files-from-match).
 
 ## What commands are supported?
 
@@ -347,13 +342,19 @@ This will result in _lint-staged_ running `eslint file-1.js file-2.js`, when you
 
 ## Using JS configuration files
 
-Writing the configuration file in JavaScript is the most powerful way to configure lint-staged (`lint-staged.config.js`, [similar](https://github.com/okonet/lint-staged#configuration), or passed via `--config`). From the configuration file, you can export either a single function or an object.
+Writing the configuration file in JavaScript is the most powerful way to configure lint-staged (`lint-staged.config.js`, [similar](https://github.com/okonet/lint-staged#configuration), or passed via `--config`). 
+From the configuration file, you can export either a single function or an object.
 
-If the `exports` value is a function, it will receive an array of all staged filenames. You can then build your own matchers for the files and return a command string or an array of command strings. These strings are considered complete and should include the filename arguments, if wanted.
+If the `exports` value is a function, it will receive an array of all staged filenames. 
+You can then build your own matchers for the files and return a command string or an array of command strings. 
+These strings are considered complete and should include the filename arguments, if wanted.
 
-If the `exports` value is an object, its keys should be glob matches (like in the normal non-js config format). The values can either be like in the normal config or individual functions like described above. Instead of receiving all matched files, the functions in the exported object will only receive the staged files matching the corresponding glob key.
+If the `exports` value is an object, its keys should be glob matches (like in the normal non-js config format). 
+The values can either be like in the normal config or individual functions like described above. 
+Instead of receiving all matched files, the functions in the exported object will only receive the staged files matching the corresponding glob key.
 
-To summarize, by default _lint-staged_ automatically adds the list of matched staged files to your command, but when building the command using JS functions it is expected to do this manually. For example:
+To summarize, by default _lint-staged_ automatically adds the list of matched staged files to your command, but when building the command using JS functions it is expected to do this manually.
+For example:
 
 ```js
 export default {
